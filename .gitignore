@@ -2,3 +2,9 @@
 *.pyc
 *.log
 data
+mtqinfra.csv
+mtqinfra.json
+mtqinfra.linejson
+mtqinfra.xml
+output.csv
+build
