@@ -27,4 +27,4 @@ ITEM_PIPELINES = [
 
 # Log file. Comment if you want to send output to stdout (but I suggest
 # you tail -f the file instead)
-#LOG_FILE = 'mtqinfra.log'
+LOG_FILE = 'mtqinfra.log'
