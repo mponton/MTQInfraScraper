@@ -128,6 +128,7 @@ class MTQInfraSpider(BaseSpider):
                 item['record_href'] = record_href                         # Fiche/Nº
                 item['structure_id'] = structure_id                       # (determined from record_href)
                 item['structure_name'] = structure_name                   # Nom
+                # @todo Add unabbreviated structure type
                 item['structure_type'] = structure_type                   # Type (abbreviated)
                 item['structure_type_img_href'] = structure_type_img_href # Type
                 item['territorial_direction'] = territorial_direction     # Direction territoriale
@@ -191,6 +192,11 @@ class MTQInfraSpider(BaseSpider):
                 inspection_report_href = inspection_report_node.extract()[0]
             else:
                 inspection_report_href = ""
+            limitation_text_node = hxs.select('//table[@id="R40849519870562027"]/tr[2]/table[1]/tr[2]/td/a/text()')
+            if limitation_text_node:
+                limitation = limitation_text_node.extract()[0].strip()
+            else:
+                limitation = ""
             limitation_node = hxs.select('//table[@id="R40849519870562027"]/tr[2]/table[1]/tr[2]/td/a/@href')
             if limitation_node:
                 limitation_href = limitation_node.extract()[0]
@@ -223,6 +229,7 @@ class MTQInfraSpider(BaseSpider):
         item['average_daily_flow_of_vehicles'] = average_daily_flow_of_vehicles # DJMA
         item['percent_trucks'] = percent_trucks                                 # % camion
         item['num_lanes'] = num_lanes                                           # Nombre de voies
+        item['limitation'] = limitation                                         # Limitation
         item['limitation_href'] = limitation_href                               # Limitation
 
         del self.items_buffer[structure_id]
