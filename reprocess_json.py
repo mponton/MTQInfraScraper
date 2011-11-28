@@ -172,7 +172,10 @@ class MTQInfraPipeline(object):
             'next_general_inspection_date',
             'record_href',
             'location_href',
-            'structure_type_img_href'
+            'structure_type_img_href',
+            'inspection_report_href',
+            'limitation',
+            'limitation_href'
         ]
         #dispatcher.connect(self.spider_opened, signals.spider_opened)
         #dispatcher.connect(self.spider_closed, signals.spider_closed)
