@@ -188,7 +188,7 @@ class MTQInfraSpider(BaseSpider):
                 num_lanes = ""
             inspection_report_node = hxs.select('//table[@id="R12060520927302613"]/tr[2]/td/table[1]/tr[2]/td/a/@href')
             if inspection_report_node:
-                inspection_report_href = inspection_report_node.extract()[0]
+                inspection_report_href = 'http://www.mtq.gouv.qc.ca' + inspection_report_node.extract()[0]
             else:
                 inspection_report_href = ""
             limitation_text_node = hxs.select('//table[@id="R40849519870562027"]/tr[2]/td/table[1]/tr[2]/td/a/text()')
@@ -198,7 +198,7 @@ class MTQInfraSpider(BaseSpider):
                 limitation = ""
             limitation_node = hxs.select('//table[@id="R40849519870562027"]/tr[2]/td/table[1]/tr[2]/td/a/@href')
             if limitation_node:
-                limitation_href = limitation_node.extract()[0]
+                limitation_href = 'http://www.mtq.gouv.qc.ca' + limitation_node.extract()[0]
             else:
                 limitation_href = ""
         except Exception as e:
