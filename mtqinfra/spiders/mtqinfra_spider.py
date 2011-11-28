@@ -128,8 +128,7 @@ class MTQInfraSpider(BaseSpider):
                 item['record_href'] = record_href                         # Fiche/Nº
                 item['structure_id'] = structure_id                       # (determined from record_href)
                 item['structure_name'] = structure_name                   # Nom
-                # @todo Add unabbreviated structure type
-                item['structure_type'] = structure_type                   # Type (abbreviated)
+                item['structure_type'] = structure_type                   # Type
                 item['structure_type_img_href'] = structure_type_img_href # Type
                 item['territorial_direction'] = territorial_direction     # Direction territoriale
                 item['road'] = road                                       # Route
