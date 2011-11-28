@@ -124,21 +124,21 @@ class MTQInfraSpider(BaseSpider):
                 # Cell 11: Report (yes/no image only) (SKIP)
 
                 item = MTQInfraItem()
-                item['record_no'] = record_no
-                item['record_href'] = record_href
-                item['structure_id'] = structure_id
-                item['structure_name'] = structure_name
-                item['structure_type'] = structure_type
-                item['structure_type_img_href'] = structure_type_img_href
-                item['territorial_direction'] = territorial_direction
-                item['road'] = road
-                item['obstacle'] = obstacle
-                item['gci'] = gci
-                item['ai_desc'] = ai_desc
-                item['ai_img_href'] = ai_img_href
-                item['ai_code'] = ai_code
-                item['location_href'] = location_href
-                item['planned_intervention'] = planned_intervention
+                item['record_no'] = record_no                             # Fiche/Nº
+                item['record_href'] = record_href                         # Fiche/Nº
+                item['structure_id'] = structure_id                       # (determined from record_href)
+                item['structure_name'] = structure_name                   # Nom
+                item['structure_type'] = structure_type                   # Type (abbreviated)
+                item['structure_type_img_href'] = structure_type_img_href # Type
+                item['territorial_direction'] = territorial_direction     # Direction territoriale
+                item['road'] = road                                       # Route
+                item['obstacle'] = obstacle                               # Obstacle
+                item['gci'] = gci                                         # Indice de condition générale
+                item['ai_desc'] = ai_desc                                 # Indice d'accessibilité
+                item['ai_img_href'] = ai_img_href                         # Indice d'accessibilité
+                item['ai_code'] = ai_code                                 # (determined from ai_desc)
+                item['location_href'] = location_href                     # Diffusion des données spatiales
+                item['planned_intervention'] = planned_intervention       # Intervention planifiée
                 self.items_buffer[structure_id] = item
                 # Request to scrape details
                 yield Request(url=record_href, callback=self.parse_details)
@@ -175,35 +175,55 @@ class MTQInfraSpider(BaseSpider):
                 # NOTE: Large number have spaces in them. Remove them.
                 average_daily_flow_of_vehicles = average_daily_flow_of_vehicles_node.extract()[0].strip().replace(' ','')
             else:
-                average_daily_flow_of_vehicles = "S.O."
+                average_daily_flow_of_vehicles = ""
             percent_trucks_node = hxs.select('//table[@id="R3885913021232166"]/tr[2]/td/table[1]/tr[2]/td[2]/text()')
             if percent_trucks_node:
                 percent_trucks = percent_trucks_node.extract()[0].strip().replace('%','')
             else:
-                percent_trucks = "S.O."
+                percent_trucks = ""
             num_lanes_node = hxs.select('//table[@id="R3885913021232166"]/tr[2]/td/table[2]/tr[2]/td/text()')
             if num_lanes_node:
                 num_lanes = num_lanes_node.extract()[0].strip()
             else:
-                num_lanes = "S.O."
+                num_lanes = ""
+            inspection_report_node = hxs.select('//table[@id="R12060520927302613"]/tr[2]/table[1]/tr[2]/td/a/@href')
+            if inspection_report_node:
+                inspection_report_href = inspection_report_node.extract()[0]
+            else:
+                inspection_report_href = ""
+            limitation_node = hxs.select('//table[@id="R40849519870562027"]/tr[2]/table[1]/tr[2]/td/a/@href')
+            if limitation_node:
+                limitation_href = limitation_node.extract()[0]
+            else:
+                limitation_href = ""
         except Exception as e:
             # Something went wrong parsing this details page. Log structure ID so we can determine which one.
             self.log("Details parsing failed for structure '{:s}'".format(structure_id), level=log.ERROR)
             raise
 
         item = self.items_buffer[structure_id]
-        item['road_class'] = road_class
-        item['municipality'] = municipality
-        item['rcm'] = rcm
-        item['latitude'] = latitude
-        item['longitude'] = longitude
-        item['construction_year'] = construction_year
+        item['road_class'] = road_class                                         # Route: Classe route
+        item['municipality'] = municipality                                     # Municipalité
+        item['rcm'] = rcm                                                       # MRC
+        # @todo CEP
+        # @todo Obstacle: Type de voie
+        # @todo Obstacle: Classe route
+        item['latitude'] = latitude                                             # Latitude
+        item['longitude'] = longitude                                           # Longitude
+        # @todo Longueur totale
+        # @todo Longueur tablier
+        # @todo Largeur hors tout
+        # @todo Largeur carrossable
+        # @todo Superficie tablier
+        item['construction_year'] = construction_year                           # Année: Construction
         item['picture_href'] = picture_href
-        item['last_general_inspection_date'] = last_general_inspection_date
-        item['next_general_inspection_date'] = next_general_inspection_date
-        item['average_daily_flow_of_vehicles'] = average_daily_flow_of_vehicles
-        item['percent_trucks'] = percent_trucks
-        item['num_lanes'] = num_lanes
+        item['last_general_inspection_date'] = last_general_inspection_date     # Dernière inspection générale
+        item['next_general_inspection_date'] = next_general_inspection_date     # Prochaine inspection générale
+        item['inspection_report_href'] = inspection_report_href                 # Rapport(s) d'inspection
+        item['average_daily_flow_of_vehicles'] = average_daily_flow_of_vehicles # DJMA
+        item['percent_trucks'] = percent_trucks                                 # % camion
+        item['num_lanes'] = num_lanes                                           # Nombre de voies
+        item['limitation_href'] = limitation_href                               # Limitation
 
         del self.items_buffer[structure_id]
         return item
