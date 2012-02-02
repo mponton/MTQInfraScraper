@@ -153,14 +153,14 @@ class MTQInfraSpider(BaseSpider):
             # Extract structure ID from URL
             structure_id = response.request.url.split(':')[-1]
             hxs = HtmlXPathSelector(response)
-            road_class = "".join(hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[2]/tr[7]/td//text()').extract()).strip()
-            municipality = "".join(hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[2]/tr[9]/td//text()').extract()).strip()
-            rcm = "".join(hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[2]/tr[10]/td//text()').extract()).strip()
-            latitude_text = hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[3]/tr[2]/td[1]/text()').extract()[0].strip()
+            road_class = "".join(hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[1]/tr[7]/td//text()').extract()).strip()
+            municipality = "".join(hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[1]/tr[9]/td//text()').extract()).strip()
+            rcm = "".join(hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[1]/tr[10]/td//text()').extract()).strip()
+            latitude_text = hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[2]/tr[2]/td[1]/text()').extract()[0].strip()
             latitude = float(latitude_text.replace(",", "."))
-            longitude_text = hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[3]/tr[2]/td[2]/text()').extract()[0].strip()
+            longitude_text = hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[2]/tr[2]/td[2]/text()').extract()[0].strip()
             longitude = float(longitude_text.replace(",", "."))
-            construction_year = hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[5]/tr[2]/td/text()').extract()[0].strip()
+            construction_year = hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[4]/tr[2]/td/text()').extract()[0].strip()
             # Picture is not always available
             picture_node = hxs.select('//img[@width="300px"][@height="200px"]/@src')
             if picture_node:
