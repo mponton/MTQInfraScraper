@@ -18,7 +18,7 @@ class MTQInfraSpider(BaseSpider):
     name = "mtqinfra"
     allowed_domains = ["www.mtq.gouv.qc.ca"]
     start_urls = [
-        "http://www.mtq.gouv.qc.ca/pls/apex/f?p=102:56:::NO:RP::"
+        "http://www.mtq.gouv.qc.ca/pls/apex/f?p=TBM:STRCT:::NO:RP,56::"
         # DEBUG: Use this url as a template to restart at a specific record number.
         #        Change session ID  (807952060873322) and pg_min_row (301) to proper values.
         #        NOTE: Also need to uncomment line in parse() method.
@@ -42,7 +42,7 @@ class MTQInfraSpider(BaseSpider):
         try:
             # Parse the main table
             hxs = HtmlXPathSelector(response)
-            rows = hxs.select('//table[@id="R10432126941777590"]//table[@summary="Report"]/tr')
+            rows = hxs.select('//table[@id="R267337656202362799"]//table[@summary="Report"]/tr')
             if not rows:
                 self.log("Failed to extract results table from response for URL '{:s}'. Has 'id' changed?".format(response.request.url), level=log.ERROR)
                 return
@@ -53,7 +53,7 @@ class MTQInfraSpider(BaseSpider):
                     continue
                 # Check if this is the last row. It contains only one cell and we must dig in to get page info
                 if len(cells) == 1:
-                    total_num_records = int(hxs.select('//table[@id="R19176911384131822"]/tr[2]/td/table/tr[8]/td[2]/text()').extract()[0])
+                    total_num_records = int(hxs.select('//table[@id="R262940246607215751"]/tr[2]/td/table/tr[6]/td[2]/text()').extract()[0])
                     first_record_on_page = int(cells[0].select('//span[@class="fielddata"]/text()').extract()[0].split('-')[0].strip())
                     last_record_on_page = int(cells[0].select('//span[@class="fielddata"]/text()').extract()[0].split('-')[1].strip())
                     self.log("Scraping details for records {:d} to {:d} of {:d} [{:.2f}% done].".format(first_record_on_page,
@@ -153,50 +153,50 @@ class MTQInfraSpider(BaseSpider):
             # Extract structure ID from URL
             structure_id = response.request.url.split(':')[-1]
             hxs = HtmlXPathSelector(response)
-            road_class = "".join(hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[1]/tr[7]/td//text()').extract()).strip()
-            municipality = "".join(hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[1]/tr[9]/td//text()').extract()).strip()
-            rcm = "".join(hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[1]/tr[10]/td//text()').extract()).strip()
-            latitude_text = hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[2]/tr[2]/td[1]/text()').extract()[0].strip()
+            road_class = "".join(hxs.select('//table[@id="R260791846806817377"]/tr[2]/td/table[1]/tr[7]/td//text()').extract()).strip()
+            municipality = "".join(hxs.select('//table[@id="R260791846806817377"]/tr[2]/td/table[1]/tr[9]/td//text()').extract()).strip()
+            rcm = "".join(hxs.select('//table[@id="R260791846806817377"]/tr[2]/td/table[1]/tr[10]/td//text()').extract()).strip()
+            latitude_text = hxs.select('//table[@id="R260791846806817377"]/tr[2]/td/table[2]/tr[2]/td[1]/text()').extract()[0].strip()
             latitude = float(latitude_text.replace(",", "."))
-            longitude_text = hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[2]/tr[2]/td[2]/text()').extract()[0].strip()
+            longitude_text = hxs.select('//table[@id="R260791846806817377"]/tr[2]/td/table[2]/tr[2]/td[2]/text()').extract()[0].strip()
             longitude = float(longitude_text.replace(",", "."))
-            construction_year = hxs.select('//table[@id="R3886317546232168"]/tr[2]/td/table[4]/tr[2]/td/text()').extract()[0].strip()
+            construction_year = hxs.select('//table[@id="R260791846806817377"]/tr[2]/td/table[4]/tr[2]/td/text()').extract()[0].strip()
             # Picture is not always available
-            picture_node = hxs.select('//img[@width="300px"][@height="200px"]/@src')
+            picture_node = hxs.select("//img[contains(@src,'%s')]/@src" % structure_id)
             if picture_node:
                 picture_href = picture_node.extract()[0]
             else:
                 picture_href = ""
-            last_general_inspection_date = re.sub('\s+', ' ', "".join(hxs.select('//table[@id="R3885717878232165"]/tr[2]/td/table/tr[2]/td//text()').extract()).strip())
-            next_general_inspection_date = re.sub('\s+', ' ', "".join(hxs.select('//table[@id="R3885717878232165"]/tr[2]/td/table/tr[3]/td//text()').extract()).strip())
+            last_general_inspection_date = re.sub('\s+', ' ', "".join(hxs.select('//table[@id="R260791247138817374"]/tr[2]/td/table/tr[2]/td//text()').extract()).strip())
+            next_general_inspection_date = re.sub('\s+', ' ', "".join(hxs.select('//table[@id="R260791247138817374"]/tr[2]/td/table/tr[3]/td//text()').extract()).strip())
             # The next fields can be missing if they do not apply
-            average_daily_flow_of_vehicles_node = hxs.select('//table[@id="R3885913021232166"]/tr[2]/td/table[1]/tr[2]/td[1]/text()')
+            average_daily_flow_of_vehicles_node = hxs.select('//table[@id="R260791442281817375"]/tr[2]/td/table[1]/tr[2]/td[1]/text()')
             if average_daily_flow_of_vehicles_node:
                 # NOTE: Large number have spaces in them. Remove them.
                 average_daily_flow_of_vehicles = average_daily_flow_of_vehicles_node.extract()[0].strip().replace(' ','')
             else:
                 average_daily_flow_of_vehicles = ""
-            percent_trucks_node = hxs.select('//table[@id="R3885913021232166"]/tr[2]/td/table[1]/tr[2]/td[2]/text()')
+            percent_trucks_node = hxs.select('//table[@id="R260791442281817375"]/tr[2]/td/table[1]/tr[2]/td[2]/text()')
             if percent_trucks_node:
                 percent_trucks = percent_trucks_node.extract()[0].strip().replace('%','')
             else:
                 percent_trucks = ""
-            num_lanes_node = hxs.select('//table[@id="R3885913021232166"]/tr[2]/td/table[2]/tr[2]/td/text()')
+            num_lanes_node = hxs.select('//table[@id="R260791442281817375"]/tr[2]/td/table[2]/tr[2]/td/text()')
             if num_lanes_node:
                 num_lanes = num_lanes_node.extract()[0].strip()
             else:
                 num_lanes = ""
-            inspection_report_node = hxs.select('//table[@id="R12060520927302613"]/tr[2]/td/table[1]/tr[2]/td/a/@href')
+            inspection_report_node = hxs.select('//table[@id="R268966050187887822"]/tr[2]/td/table[1]/tr[2]/td/a/@href')
             if inspection_report_node:
                 inspection_report_href = 'http://www.mtq.gouv.qc.ca' + inspection_report_node.extract()[0]
             else:
                 inspection_report_href = ""
-            limitation_text_node = hxs.select('//table[@id="R40849519870562027"]/tr[2]/td/table[1]/tr[2]/td/a/text()')
+            limitation_text_node = hxs.select('//table[@id="R297755049131147236"]/tr[2]/td/table[1]/tr[2]/td/a/text()')
             if limitation_text_node:
                 limitation = limitation_text_node.extract()[0].strip()
             else:
                 limitation = ""
-            limitation_node = hxs.select('//table[@id="R40849519870562027"]/tr[2]/td/table[1]/tr[2]/td/a/@href')
+            limitation_node = hxs.select('//table[@id="R297755049131147236"]/tr[2]/td/table[1]/tr[2]/td/a/@href')
             if limitation_node:
                 limitation_href = 'http://www.mtq.gouv.qc.ca' + limitation_node.extract()[0]
             else:
